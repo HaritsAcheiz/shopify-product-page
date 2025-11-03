@@ -1,0 +1,401 @@
+{%- if product.media.size > 0 -%}
+  {%- assign show_thumbnails_if_one_media = true -%}
+
+  <div class="">
+    <div class="card__section card__section--tight">
+      <div class="product-gallery {% if show_thumbnails_if_one_media %}product-gallery--with-thumbnails{% endif %}">
+        {%- assign selected_media = product.selected_variant.featured_media | default: product.featured_media -%}
+
+        <div class="product-gallery__carousel-wrapper card">
+          <div class="product-gallery__carousel {% if template != 'product.quick-view' and section.settings.enable_image_zoom %}product-gallery__carousel--zoomable{% endif %}" data-media-count="{{ product.media.size }}" data-initial-media-id="{{ selected_media.id }}">
+            {%- for media in product.media -%}
+              {%- comment -%}Skip videos in main carousel{%- endcomment -%}
+              {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                {%- continue -%}
+              {%- endif -%}
+
+              {%- assign is_media_group = false -%}
+              {%- assign is_media_filtered = false -%}
+              {%- assign media_alt = media.alt -%}
+
+              {%- if media.alt contains '#' -%}
+                {%- assign is_media_group = true -%}
+                {%- assign alt_parts = media.alt | split: '#' -%}
+
+                {%- if alt_parts.size == 2 and alt_parts.first != blank -%}
+                  {%- assign media_alt = alt_parts.first | strip -%}
+                {%- else -%}
+                  {%- assign media_alt = product.title -%}
+                {%- endif -%}
+
+                {%- assign media_group_parts = alt_parts.last | split: '_' -%}
+
+                {%- for option in product.options -%}
+                  {%- assign downcase_option = option | downcase -%}
+                  {%- assign downcase_group_option = media_group_parts.first | strip | downcase -%}
+
+                  {%- if downcase_option == downcase_group_option -%}
+                    {%- assign option_setting = 'option' | append: forloop.index -%}
+                    {%- assign option_value = product.selected_or_first_available_variant[option_setting] | downcase -%}
+
+                    {%- assign downcase_group_value = media_group_parts.last | strip | downcase -%}
+                    {%- assign media_variant_ids = media.variants | map: 'id' -%}
+
+                    {%- if option_value != downcase_group_value -%}
+                      {%- unless media_variant_ids contains product.selected_or_first_available_variant.id -%}
+                        {%- assign is_media_filtered = true -%}
+                      {%- endunless -%}
+                    {%- endif -%}
+
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+
+              <div class="product-gallery__carousel-item {% if media.id == selected_media.id %}is-selected{% endif %} {% if is_media_filtered %}is-filtered{% endif %}" tabindex="-1" data-media-id="{{ media.id }}" data-media-type="{{ media.media_type | escape }}" {% if is_media_group %}data-group-name="{{ media_group_parts.first | strip | downcase | escape }}" data-group-value="{{ media_group_parts.last | strip | downcase | escape }}"{% endif %}>
+                {%- case media.media_type -%}
+                  {%- when 'image' -%}
+                    <div class="product-gallery__size-limiter" style="max-width: {{ media.width }}px">
+                      {%- capture supported_sizes -%}{%- render 'image-size', sizes: '400,500,600,700,800,900,1000,1100,1200', image: media -%}{%- endcapture -%}
+                      {%- assign image_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+
+                      <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: media.aspect_ratio }}%">
+                        <img class="product-gallery__image lazyload image--fade-in" data-src="{{ image_url }}" data-widths="[{{ supported_sizes }}]" data-sizes="auto" data-zoom="{{ media | img_url: '1600x' }}" data-zoom-width="{{ media.width | at_most: 1600 }}" alt="{{ media_alt | escape }}">
+
+                        <noscript>
+                          <img src="{{ media | img_url: '800x' }}" alt="{{ media_alt | escape }}">
+                        </noscript>
+                      </div>
+                    </div>
+
+                  {%- when 'model' -%}
+                    <div class="product-gallery__model">
+                      <div class="model-wrapper">
+                        {{- media | model_viewer_tag: image_size: '1024x', reveal: 'interaction', toggleable: true -}}
+                      </div>
+                    </div>
+                {%- endcase -%}
+              </div>
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%}Add the "view in your space" button, which allows to show the product in customer's environment (if the device supports it){%- endcomment -%}
+          {%- assign first_3d_model = product.media | where: 'media_type', 'model' | first -%}
+
+          {%- if first_3d_model -%}
+            <button class="product-gallery__view-in-space button button--full" data-shopify-xr data-shopify-model3d-id="{{ first_3d_model.id }}" data-shopify-model3d-default-id="{{ first_3d_model.id }}" data-shopify-title="{{ product.title | escape }}" data-shopify-xr-hidden>
+              {%- render 'icon', icon: 'media-view-in-space' -%} {{- 'product.general.view_in_space' | t -}}
+            </button>
+          {%- endif -%}
+
+          {%- if template != 'product.quick-view' and section.settings.enable_image_zoom -%}
+            <span class="product-gallery__zoom-notice">
+              {% render 'icon', icon: 'zoom' %}
+              <span class="hidden-pocket">{{ 'product.general.zoom' | t }}</span>
+              <span class="hidden-lap-and-up">{{ 'product.general.zoom_mobile' | t }}</span>
+            </span>
+          {%- endif -%}
+        </div>
+
+        {%- if show_thumbnails_if_one_media -%}
+          <div class="scroller">
+            <div class="scroller__inner">
+              {%- comment -%}Customer Videos Section - Below Product Gallery{%- endcomment -%}
+              {%- assign product_videos = product.media | where: "media_type", "video" -%}
+              {%- assign product_external_videos = product.media | where: "media_type", "external_video" -%}
+              {%- assign all_videos = product_videos | concat: product_external_videos -%}
+
+              {%- if all_videos.size > 0 and section.settings.show_customer_videos -%}
+                <div class="customer-videos-section">
+                  <div class="customer-videos__header">
+                    <h2 class="customer-videos__title">{{ section.settings.videos_title | default: "Real Customer Adventures" }}</h2>
+                    <p class="customer-videos__subtitle">{{ section.settings.videos_subtitle | default: "Watch actual kids having a blast with Their Magic Cars Trucks in all terrains!" }}</p>
+                  </div>
+
+                  <div class="customer-videos__carousel">
+                    <button class="customer-videos__nav customer-videos__nav--prev" aria-label="Previous videos">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+
+                    <div class="customer-videos__wrapper">
+                      <div class="customer-videos__track">
+                        {%- for video in all_videos -%}
+                          <div class="customer-videos__item" data-media-id="{{ video.id }}" data-media-type="{{ video.media_type }}">
+                            <div class="customer-videos__thumbnail">
+                              {%- if video.preview_image -%}
+                                <img src="{{ video.preview_image | img_url: '400x' }}" alt="{{ video.alt | default: product.title | escape }}" loading="lazy">
+                              {%- endif -%}
+                              <button class="customer-videos__play-button" aria-label="Play video">
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                  <circle cx="24" cy="24" r="24" fill="rgba(255, 255, 255, 0.9)"/>
+                                  <path d="M20 16L32 24L20 32V16Z" fill="#DC2626"/>
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        {%- endfor -%}
+                      </div>
+                    </div>
+
+                    <button class="customer-videos__nav customer-videos__nav--next" aria-label="Next videos">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              {%- endif -%}
+              <div class="product-gallery__thumbnail-list">
+                {%- for media in product.media -%}
+                  {%- comment -%}Skip videos in thumbnail list{%- endcomment -%}
+                  {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                    {%- continue -%}
+                  {%- endif -%}
+
+                  {%- assign is_media_group = false -%}
+                  {%- assign is_media_filtered = false -%}
+                  {%- assign media_alt = media.alt -%}
+
+                  {%- if media.alt contains '#' -%}
+                    {%- assign is_media_group = true -%}
+                    {%- assign alt_parts = media.alt | split: '#' -%}
+
+                    {%- comment -%}
+                      If the custom ALT tag contains two parts (for instance "My custom alt # color_blue") then the first part is actually used
+                      as a custom ALT tag
+                    {%- endcomment -%}
+
+                    {%- if alt_parts.size == 2 and alt_parts.first != blank -%}
+                      {%- assign media_alt = alt_parts.first | strip -%}
+                    {%- else -%}
+                      {%- assign media_alt = product.title -%}
+                    {%- endif -%}
+
+                    {%- assign media_group_parts = alt_parts.last | split: '_' -%}
+
+                    {%- for option in product.options -%}
+                      {%- assign downcase_option = option | downcase -%}
+                      {%- assign downcase_group_option = media_group_parts.first | strip | downcase -%}
+
+                      {%- if downcase_option == downcase_group_option -%}
+                        {%- assign option_setting = 'option' | append: forloop.index -%}
+                        {%- assign option_value = product.selected_or_first_available_variant[option_setting] | downcase -%}
+
+                        {%- assign downcase_group_value = media_group_parts.last | strip | downcase -%}
+                        {%- assign media_variant_ids = media.variants | map: 'id' -%}
+
+                        {%- if option_value != downcase_group_value -%}
+                          {%- unless media_variant_ids contains product.selected_or_first_available_variant.id -%}
+                            {%- assign is_media_filtered = true -%}
+                          {%- endunless -%}
+                        {%- endif -%}
+
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endif -%}
+
+                  <a href="{{ media | img_url: '1024x' }}" rel="noopener" class="product-gallery__thumbnail {% if media.id == selected_media.id %}is-nav-selected{% endif %} {% if is_media_filtered %}is-filtered{% endif %}" data-media-id="{{ media.id }}" {% if is_media_group %}data-group-name="{{ media_group_parts.first | strip | downcase | escape }}" data-group-value="{{ media_group_parts.last | strip | downcase | escape }}"{% endif %}>
+                    {%- comment -%}Based on the type of media, we have to add an icon as per Shopify rules{%- endcomment -%}
+
+                    {%- case media.media_type -%}
+                      {%- when 'model' -%}
+                        <span class="product-gallery__thumbnail-badge">{% render 'icon', icon: 'media-model-badge' %}</span>
+                    {%- endcase -%}
+
+                    <div class="aspect-ratio" style="padding-bottom: {{ 100.0 }}%">
+                      <img class="image--fade-in lazyload" data-src="{{ media | img_url: '130x' }}" alt="{{ media_alt | escape }}">
+                    </div>
+                  </a>
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.enable_image_zoom -%}
+          {%- comment -%}This code is used to power the mobile zoom and must not be removed nor altered{%- endcomment -%}
+          <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="pswp__bg"></div>
+            <div class="pswp__scroll-wrap">
+              <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+              </div>
+
+              <div class="pswp__ui">
+                <button class="pswp__button pswp__button--close" aria-label="{{ 'general.accessibility.close' | t }}">
+                  {% render 'icon', icon: 'close-2' %}
+                </button>
+
+                <div class="pswp__prev-next">
+                  <button class="pswp__button pswp__button--arrow--left" aria-label="{{ 'general.accessibility.previous' | t }}">
+                    {% render 'icon', icon: 'arrow-left' %}
+                  </button>
+
+                  <button class="pswp__button pswp__button--arrow--right" aria-label="{{ 'general.accessibility.next' | t }}">
+                    {% render 'icon', icon: 'arrow-right' %}
+                  </button>
+                </div>
+
+                <div class="pswp__pagination">
+                  <span class="pswp__pagination-current"></span> / <span class="pswp__pagination-count"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%}Video Modal{%- endcomment -%}
+  <div id="customerVideoModal" class="customer-video-modal" style="display: none;">
+    <div class="customer-video-modal__backdrop"></div>
+    <div class="customer-video-modal__content">
+      <button class="customer-video-modal__close" aria-label="Close video">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="customer-video-modal__video-wrapper">
+        <div id="customerVideoPlayer"></div>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%}Store all video data for the modal{%- endcomment -%}
+  <script>
+    window.productVideos = [
+      {%- for video in all_videos -%}
+        {
+          id: "{{ video.id }}",
+          type: "{{ video.media_type }}",
+          {% if video.media_type == 'external_video' %}
+          host: "{{ video.host }}",
+          externalId: "{{ video.external_id }}"
+          {% else %}
+          sources: {{ video.sources | json }}
+          {% endif %}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ];
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Customer Videos Carousel
+      const carousel = document.querySelector('.customer-videos__carousel');
+      if (carousel) {
+        const track = carousel.querySelector('.customer-videos__track');
+        const prevBtn = carousel.querySelector('.customer-videos__nav--prev');
+        const nextBtn = carousel.querySelector('.customer-videos__nav--next');
+        const items = track.querySelectorAll('.customer-videos__item');
+
+        let currentIndex = 0;
+        const itemsToShow = window.innerWidth < 640 ? 1 : window.innerWidth < 1000 ? 2 : 4;
+        const maxIndex = Math.max(0, items.length - itemsToShow);
+
+        function updateCarousel() {
+          const itemWidth = items[0].offsetWidth;
+          const gap = 16;
+          const offset = currentIndex * (itemWidth + gap);
+          track.style.transform = `translateX(-${offset}px)`;
+
+          prevBtn.disabled = currentIndex === 0;
+          nextBtn.disabled = currentIndex >= maxIndex;
+        }
+
+        prevBtn.addEventListener('click', function() {
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+          }
+        });
+
+        nextBtn.addEventListener('click', function() {
+          if (currentIndex < maxIndex) {
+            currentIndex++;
+            updateCarousel();
+          }
+        });
+
+        updateCarousel();
+
+        window.addEventListener('resize', function() {
+          currentIndex = 0;
+          updateCarousel();
+        });
+      }
+
+      // Video Modal
+      const modal = document.getElementById('customerVideoModal');
+      const videoPlayer = document.getElementById('customerVideoPlayer');
+      const closeBtn = modal.querySelector('.customer-video-modal__close');
+      const backdrop = modal.querySelector('.customer-video-modal__backdrop');
+
+      function openVideoModal(mediaId) {
+        const videoData = window.productVideos.find(v => v.id == mediaId);
+
+        if (videoData) {
+          if (videoData.type === 'external_video') {
+            // Handle YouTube and Vimeo
+            let embedUrl = '';
+            if (videoData.host === 'youtube') {
+              embedUrl = `https://www.youtube.com/embed/${videoData.externalId}?autoplay=1`;
+            } else if (videoData.host === 'vimeo') {
+              embedUrl = `https://player.vimeo.com/video/${videoData.externalId}?autoplay=1`;
+            }
+
+            videoPlayer.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+          } else if (videoData.type === 'video') {
+            // Handle native Shopify videos
+            let videoHTML = '<video controls autoplay style="width: 100%; height: 100%;">';
+            if (videoData.sources && videoData.sources.length > 0) {
+              videoData.sources.forEach(source => {
+                videoHTML += `<source src="${source.url}" type="${source.mime_type}">`;
+              });
+            }
+            videoHTML += '</video>';
+            videoPlayer.innerHTML = videoHTML;
+          }
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeVideoModal() {
+        videoPlayer.innerHTML = '';
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      // Play button click handlers
+      document.querySelectorAll('.customer-videos__play-button').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const videoItem = this.closest('.customer-videos__item');
+          const mediaId = videoItem.dataset.mediaId;
+
+          if (mediaId) {
+            openVideoModal(mediaId);
+          }
+        });
+      });
+
+      // Close modal handlers
+      if (closeBtn) closeBtn.addEventListener('click', closeVideoModal);
+      if (backdrop) backdrop.addEventListener('click', closeVideoModal);
+
+      // Close on Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+          closeVideoModal();
+        }
+      });
+    });
+  </script>
+{%- endif -%}

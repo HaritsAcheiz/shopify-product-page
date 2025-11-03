@@ -1,0 +1,132 @@
+/* Notify Me Button Styles */
+.notify-me-button {
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Modal Overlay Styles */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  position: relative;
+  z-index: 10001;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+}
+
+/* Modal Animation */
+@keyframes animatetop {
+  from {
+    top: -300px;
+    opacity: 0;
+  }
+  to {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Product Gallery Thumbnail List Styles (for non-product templates) */
+@media screen and (min-width: 1000px) {
+  .product-gallery__thumbnail-list {
+    position: relative;
+    z-index: 1;
+    margin: -2px 0 -2px -3px;
+    max-height: 450px;
+    width: 96px;
+    overflow: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    -ms-scroll-chaining: none;
+    overscroll-behavior: contain;
+  }
+
+  .product-gallery__thumbnail-list::-webkit-scrollbar {
+    -webkit-appearance: none;
+  }
+
+  .product-gallery__thumbnail {
+    margin: 8px 4px;
+  }
+}
+
+/* Okendo Reviews Styles */
+.okeReviews[data-oke-container] *,
+.okeReviews[data-oke-container] :after,
+.okeReviews[data-oke-container] :before,
+div.okeReviews *,
+div.okeReviews :after,
+div.okeReviews :before {
+  box-sizing: border-box;
+  margin-right: auto;
+}
+
+.okeReviews[data-oke-container].oke-w .oke-w-controls-nav .oke-poweredBy,
+div.okeReviews.oke-w .oke-w-controls-nav .oke-poweredBy {
+  order: -1;
+  display: none;
+  margin-bottom: 12px;
+}
+
+.oke-w-recommendsModule {
+  display: none !important;
+}
+
+.okeReviews[data-oke-container] .oke-w-reviews-writeReview,
+div.okeReviews .oke-w-reviews-writeReview {
+  margin-left: 0px !important;
+}
