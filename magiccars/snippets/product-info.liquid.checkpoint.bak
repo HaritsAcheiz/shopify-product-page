@@ -21,12 +21,7 @@
   {%- endif -%}
 
   <div class="card__section">
-    {% comment %}
-      ------------------------------------------------------------------------------
-      PRODUCT META
-      ------------------------------------------------------------------------------
-    {% endcomment %}
-
+    {% comment %} PRODUCT META{% endcomment %}
     {%- if section.settings.show_share_buttons -%}
       {%- capture share_buttons -%}
         {%- assign share_url = shop.url | append: product.url | url_param_escape -%}
@@ -245,12 +240,7 @@
       </div>
     {%- endif -%}
 
-    {% comment %}
-      ------------------------------------------------------------------------------
-      PRODUCT FORM
-      ------------------------------------------------------------------------------
-    {% endcomment %}
-
+    {% comment %} PRODUCT FORM {% endcomment %}
     {%- assign color_label = 'color,colour,couleur,cor,colore,farbe,ìƒ‰,è‰²,ã‚«ãƒ©ãƒ¼,fÃ¤rg,farve,szÃ­n,barva' | split: ',' -%}
 
     {%- form 'product', product, class: 'product-form' -%}
@@ -267,7 +257,6 @@
               and color_label contains downcase_option
             -%}
               {%- comment -%}NOTE: even if the merchant is using the mode to display variant images, if ALL variant do not have an associated image, we fallback to color{%- endcomment -%}
-
               {%- assign has_image_attached_to_all_variants = true -%}
 
               {%- for variant in product.variants -%}
@@ -471,14 +460,14 @@
       {%- endunless -%}
 
       <div class="product-form__info-list">
-        <!-- -------------------------Line Item Start--------------------- -->
+        <!-- Line Item Start -->
         <div>
           <p class="line-item-property__field">
             <label for="your-name">Enter License Plate Name:</label>
             <input id="your-name" type="text" name="properties[Free License Plate Name Gift]" value=" ">
           </p>
         </div>
-        <!-- -------------------------Line Item End--------------------- -->
+        <!-- Line Item End -->
 
         {%- if section.settings.show_inventory_quantity and product.template_suffix != 'pre-order' -%}
           <div class="product-form__info-item">
@@ -698,15 +687,7 @@
     </style>
   {%- endif -%}
 
-  {% comment %}
-    ------------------------------------------------------------------------------
-    Product Data. This must be outputted for all products (including home page).
-
-    IMPORTANT: THIS CODE IS VITAL. DO NOT EDIT IT NOT REMOVE IT. MAKE SURE TO KEEP
-    THE EXACT SAME ATTRIBUTES.
-    ------------------------------------------------------------------------------
-  {% endcomment %}
-
+  {% comment %} Product Data. This must be outputted for all products (including home page) {% endcomment %}
   <script type="application/json" data-product-json>
     {
       "product": {{ product | json }},

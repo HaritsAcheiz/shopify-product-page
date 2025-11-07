@@ -69,22 +69,92 @@
         <div class="product-block-list__wrapper">
           {%- for block in section.blocks -%}
             {%- case block.type -%}
+
               {%- when 'product_gallery' -%}
                 {%- if product.media.size > 0 -%}
                   <div class="product-block-list__item product-block-list__item--gallery">
                     {% render 'product-gallery' %}
                   </div>
                 {%- endif -%}
+
               {%- when 'product_info' -%}
                 <div class="product-block-list__item product-block-list__item--info">
                   {% render 'product-info' %}
                 </div>
+
+              {%- when 'text_with_icons' -%}
+                <div class="product-block-list__item product-block-list__item--item-features">
+                  {% if template.name == 'product' %}
+                    <section
+                      class="section section--tight"
+                      id="TxtBox"
+                      data-section-id="{{ section.id }}"
+                      data-section-type="text-with-icons"
+                      {{ block.shopify_attributes }}
+                    >
+
+                      {% comment %} RENDER THE BLOCK HEADING HERE {% endcomment %}
+                      {%- if block.settings.heading != blank -%}
+                        <h2 class="section__title heading h3 container">{{ block.settings.heading | escape }}</h2>
+                      {%- endif -%}
+
+                      <div class="container container--flush">
+                        <div class="text-with-icons {% if section.settings.stack_mobile %}text-with-icons--stacked{% endif %}">
+
+                          {%- comment -%}
+                            FIX: Filter the section.blocks to ONLY include the intended child block type
+                            and EXCLUDE the trust_badge blocks.
+                          {%- endcomment -%}
+                          {%- for child_block in section.blocks -%}
+
+                            {%- if child_block.type == 'item' and child_block.type != 'trust_badge' -%}
+
+                              {% comment %} Use a child_block loop to render the content within the Item block schema {% endcomment %}
+                              <div
+                                class="p-10 text-left one-third sm--one-whole"
+                                data-block-index="{{ forloop.index0 }}"
+                              >
+                                <div class="text-with-icons__icon-wrapper">
+                                  {%- if child_block.settings.custom_icon != blank -%}
+                                    <img src="{{ child_block.settings.custom_icon | img_url: '60x' }}" alt="{{ child_block.settings.custom_icon.alt | escape }}">
+                                  {%- else -%}
+                                    {%- render 'icon', icon: child_block.settings.icon, stroke_width: 1.5 -%}
+                                  {%- endif -%}
+                                </div>
+
+                                {%- if child_block.settings.title != blank or child_block.settings.content != blank -%}
+                                  <div class="text-with-icons__content-wrapper">
+                                    {%- if child_block.settings.title != blank -%}
+                                      <p class="text-with-icons__title text--strong">{{ child_block.settings.title | escape }}</p>
+                                      <p class="link--accented ">
+                                        <strong>{{ child_block.settings.subtitle | escape }}</strong>
+                                      </p>
+                                    {%- endif -%}
+                                    {%- if child_block.settings.content != blank -%}
+                                      <div class="text-with-icons__content rte line-H20">
+                                        {{ child_block.settings.content }}
+                                      </div>
+                                    {%- endif -%}
+                                  </div>
+                                {%- endif -%}
+                              </div>
+
+                            {%- endif -%}
+                          {%- endfor -%}
+
+                        </div>
+                      </div>
+                    </section>
+                  {% endif %}
+                </div>
+
               {%- when 'subtitle' -%}
                 {%- if product.metafields.custom.subtitle.value != blank -%}
                   <p class="product__subtitle text-subdued" {{ block.shopify_attributes }}>
                     {{ product.metafields.custom.subtitle.value | escape }}
                   </p>
                 {%- endif -%}
+
             {%- endcase -%}
           {%- endfor -%}
 
@@ -144,17 +214,13 @@
           <button type="submit" class="product-form__add-button button button--primary" data-action="add-to-cart">{{ 'product.form.add_to_cart' | t }}</button>
         </div>
 
-        {%- comment -%}
-        --------------------------------------------------------------------------------------
-        TABS
-        --------------------------------------------------------------------------------------
-        {%- endcomment -%}
+        {%- comment -%} TABS {%- endcomment -%}
 
         {%- for i in (1..5) -%}
           {%- assign unique_tab_title = '' -%}
           {%- assign unique_tab_content = '' -%}
 
-          {%- comment -%}First check for metafields{%- endcomment -%}
+          {%- comment -%} First check for metafields {%- endcomment -%}
 
           {%- assign metafield_tab_title_option = 'tab_' | append: i | append: '_title' -%}
           {%- assign metafield_tab_content_option = 'tab_' | append: i | append: '_content' -%}
@@ -257,11 +323,7 @@
           {%- endunless -%}
         {%- endfor -%}
 
-        {%- comment -%}
-          --------------------------------------------------------------------------------------
-          REVIEWS
-          --------------------------------------------------------------------------------------
-        {%- endcomment -%}
+        {%- comment -%} REVIEWS {%- endcomment -%}
 
         {%- if section.settings.enable_reviews -%}
           <div class="product-block-list__item product-block-list__item--reviews">
@@ -297,11 +359,7 @@
           </script>
         {%- endif -%}
 
-        {%- comment -%}
-        --------------------------------------------------------------------------------------
-        SECURITY BADGES
-        --------------------------------------------------------------------------------------
-        {%- endcomment -%}
+        {%- comment -%} SECURITY BADGES {%- endcomment -%}
 
         {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
           {%- assign show_payment_icons = true -%}
@@ -353,11 +411,7 @@
           </div>
         {%- endif -%}
 
-        {%- comment -%}
-        --------------------------------------------------------------------------------------
-        ESTIMATE SHIPPING
-        --------------------------------------------------------------------------------------
-        {%- endcomment -%}
+        {%- comment -%} ESTIMATE SHIPPING {%- endcomment -%}
 
         {%- if section.settings.show_shipping_estimator and product.available -%}
           <div class="product-block-list__item product-block-list__item--shipping">
@@ -890,6 +944,19 @@
       ]
     },
     {
+      "type": "text_with_icons",
+      "name": "Item Features",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Item Features"
+        }
+      ]
+    },
+    {
       "type": "product_info",
       "name": "Product Info",
       "limit": 1,
@@ -901,7 +968,45 @@
       ]
     },
     {
-      "type": "Item",
+      "type": "trust_badge",
+      "name": "Trust Badge",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "bi-truck", "label": "Truck (Shipping)" },
+            { "value": "bi-shield-check", "label": "Shield (Warranty/Secure)" },
+            { "value": "bi-chat-dots", "label": "Chat (Support)" },
+            { "value": "bi-credit-card", "label": "Credit Card (Payments)" },
+            { "value": "bi-gear", "label": "Gear (Custom)" }
+          ],
+          "default": "bi-shield-check"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_icon",
+          "label": "Custom icon",
+          "info": "60 x 60px .png with transparency recommended"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Trust Feature"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content",
+          "default": "<p>Explain your feature here.</p>"
+        }
+      ]
+    },
+    {
+      "type": "item",
       "name": "Item",
       "settings": [
         {

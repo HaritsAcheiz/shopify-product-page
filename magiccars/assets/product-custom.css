@@ -454,33 +454,6 @@
   }
 }
 
-/* Okendo Reviews Styles */
-.okeReviews[data-oke-container] *,
-.okeReviews[data-oke-container] :after,
-.okeReviews[data-oke-container] :before,
-div.okeReviews *,
-div.okeReviews :after,
-div.okeReviews :before {
-  box-sizing: border-box;
-  margin-right: auto;
-}
-
-.okeReviews[data-oke-container].oke-w .oke-w-controls-nav .oke-poweredBy,
-div.okeReviews.oke-w .oke-w-controls-nav .oke-poweredBy {
-  order: -1;
-  display: none;
-  margin-bottom: 12px;
-}
-
-.oke-w-recommendsModule {
-  display: none !important;
-}
-
-.okeReviews[data-oke-container] .oke-w-reviews-writeReview,
-div.okeReviews .oke-w-reviews-writeReview {
-  margin-left: 0px !important;
-}
-
 /* Product Info Styles */
 .product-form__info-item.Dinline {
   display: inline;
@@ -569,12 +542,144 @@ div.okeReviews .oke-w-reviews-writeReview {
   color: #1c1d1d;
   margin-top: 0;
   margin-bottom: 5px;
+  /* Ensure the 4 lines for line-clamp are REMOVED from here */
 }
 
 /* Responsive sizing for mobile */
 @media screen and (max-width: 749px) {
   .product-meta > h1.product-meta__title {
     font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+}
+
+/* Reduce spacing in product info sections */
+.product-meta {
+  margin-bottom: 12px;
+}
+
+.product__subtitle {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  line-height: 1.4
+}
+
+.product-meta__info-text {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.product-meta__label-list {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.product-meta__reference {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.product-meta__share-buttons {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.card__separator {
+  margin: 12px 0;
+}
+
+.product-form__info-item {
+  margin-bottom: 12px;
+}
+
+.product-form__variants {
+  margin-bottom: 16px;
+}
+
+.product-form__option {
+  margin-bottom: 12px;
+}
+
+.product-form__info-list {
+  margin-bottom: 12px;
+}
+
+.product-form__payment-container {
+  margin-top: 16px;
+}
+
+/* Reduce spacing for price section */
+.price-list {
+  margin-bottom: 8px;
+}
+
+.product-form__price-info {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+/* Reduce Key Features spacing */
+.product__key-features {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.key-features__title {
+  margin-bottom: 8px;
+}
+
+/* Reduce Specifications spacing */
+.product__specifications {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.specifications__title {
+  margin-bottom: 8px;
+}
+
+.specifications__label,
+.specifications__value {
+  padding: 8px 12px;
+}
+
+/* Reduce line item property spacing */
+.line-item-property__field {
+  margin-bottom: 12px;
+}
+
+.line-item-property__field label {
+  margin-bottom: 4px;
+}
+
+/* Card section spacing */
+.card__section {
+  padding: 16px 20px;
+}
+
+@media screen and (max-width: 749px) {
+  .card__section {
+    padding: 12px 16px;
+  }
+
+  .product-meta {
+    margin-bottom: 10px;
+  }
+
+  .card__separator {
+    margin: 10px 0;
+  }
+
+  .product-form__variants {
+    margin-bottom: 12px;
+  }
+
+  .product-form__option {
+    margin-bottom: 10px;
+  }
+
+  .product-form__payment-container {
+    margin-top: 12px;
   }
 }
 
@@ -726,8 +831,8 @@ div.okeReviews .oke-w-reviews-writeReview {
   gap: 10px;
   font-size: 0.9rem;
   color: #4a5568;
-  margin-bottom: 10px;
-  line-height: 1.5;
+  margin-bottom: 8px;
+  line-height: 1.4;
 }
 
 .key-features__icon {
@@ -766,24 +871,114 @@ div.okeReviews .oke-w-reviews-writeReview {
 
 .specifications__label {
   flex: 0 0 40%;
-  padding: 12px 16px;
+  padding: 6px 16px;
   background-color: #f9fafb;
   font-weight: 500;
   color: #374151;
   font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .specifications__value {
   flex: 1;
-  padding: 12px 16px;
+  padding: 6px 16px;
   color: #1c1d1d;
   font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 @media screen and (max-width: 749px) {
   .specifications__label,
   .specifications__value {
     font-size: 0.875rem;
-    padding: 10px 12px;
+    padding: 5px 12px;
+    line-height: 1.4;
   }
+}
+
+/* --- Custom Trust Badges Section: FIX FOR MOCKUP --- */
+
+.product-trust-badges-grid {
+  display: flex; /* Ensure it is a flex container */
+  flex-wrap: nowrap; /* Prevent wrapping onto new lines on desktop */
+  justify-content: space-between;
+
+  /* Outer Box Styling */
+  border: 1px solid #e5e7eb;
+  border-radius: var(--border-radius);
+  margin-top: 20px;
+}
+
+.product-trust-badge {
+  /* Mobile: Stack items (full width on small screen) */
+  flex-basis: 100%;
+  padding: 15px 15px;
+  text-align: center;
+  position: relative;
+
+  /* Bottom separator for mobile stacking */
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Remove bottom separator on the last item */
+.product-trust-badge:last-child {
+  border-bottom: none;
+}
+
+@media screen and (min-width: 750px) {
+  .product-trust-badge {
+    /* Desktop: 4 columns */
+    flex-basis: 25%;
+    padding: 20px 15px;
+    border-bottom: none; /* No horizontal line on desktop */
+  }
+
+  /* Add vertical separator (left border) starting from the second item */
+  .product-trust-badge:not(:first-child) {
+    border-left: 1px solid #e5e7eb;
+  }
+}
+
+/* --- Internal Content Styling --- */
+
+/* Hide icon wrapper if the mockup is truly just text */
+.product-trust-badge__icon {
+  display: none;
+}
+
+.product-trust-badge__title {
+  font-size: 1rem;
+  font-weight: 600; /* Bolder title */
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #1c1d1d; /* Dark text for titles */
+  line-height: 1.2;
+}
+
+.product-trust-badge__text {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #4a5568; /* Subdued gray text for content */
+}
+
+.product-trust-badge__text p {
+  margin: 0; /* Important: removes vertical gaps from rich text paragraphs */
+}
+
+/* Styling for the Item Features Block Title (inside product-block-list__item--item-features) */
+.product-block-list__item--item-features .section__title {
+  /* Make the heading prominent */
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1c1d1d;
+
+  /* ADD THIS LINE TO CENTER THE TEXT */
+  text-align: center;
+
+  /* Add vertical spacing */
+  margin-top: 20px;
+  margin-bottom: 15px;
+
+  /* Ensure the title spans the full width of its container */
+  width: 100%;
 }
